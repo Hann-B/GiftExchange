@@ -12,7 +12,7 @@ namespace TIY_GiftExchange.Services
     {
         const string connectionString = @"Server=localhost\SQLEXPRESS;Database=GiftExchange;Trusted_Connection=True;";
 
-        public static List<Gift> GetAllGifts()
+        public List<Gift> GetAllGifts()
         {
             var rv = new List<Gift>();
             using (var connection = new SqlConnection(connectionString))
@@ -60,6 +60,25 @@ namespace TIY_GiftExchange.Services
             return Gift;
         }
 
+        public static Gift GetGift(int id)
+        {
+            var gift = new List<Gift>();
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var query = "SELECT * FROM Gift WHERE Id=@Id";
+                var cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    gift.Add(new Gift(reader));
+                }
+                connection.Close();
+            }
+            return gift[0];
+        }
+
         public Gift EditGift(Gift Gift)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -72,8 +91,10 @@ namespace TIY_GiftExchange.Services
                            ,[Width]=@Width
                            ,[Depth]=@Depth
                            ,[Weight]=@Weight
-                           ,[IsOpened]=@IsOpened";
+                           ,[IsOpened]=@IsOpened
+                            WHERE Id=@Id";
                 var cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Id", Gift.Id);
                 cmd.Parameters.AddWithValue("@Contents", Gift.Contents);
                 cmd.Parameters.AddWithValue("@GiftHint", Gift.GiftHint);
                 cmd.Parameters.AddWithValue("@ColorWrappingPaper", Gift.ColorWrappingPaper);
@@ -88,6 +109,60 @@ namespace TIY_GiftExchange.Services
             }
             return Gift;
         }
+
+        public Gift DeleteGift(Gift Gift)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var query = @"DELETE FROM [dbo].[Gift]
+                           WHERE Id=@id";
+                var cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", Gift.Id);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+                connection.Close();
+            }
+            return Gift;
+        }
+
+        public List<Gift> UnopenedGifts()
+        {
+            var gifts = new List<Gift>();
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var query = @"SELECT *
+                            FROM[dbo].[Gift]
+                            WHERE IsOpened = @IsOpened;";
+                var cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@IsOpened", false);
+                connection.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    gifts.Add(new Gift(reader));
+                }
+                connection.Close();
+            }
+            return gifts;
+        }
+
+        public Gift OpenGift(Gift Gift)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var query = @"UPDATE [dbo].[Gift]
+                           SET[IsOpened]=@IsOpened
+                            WHERE Id=@id";
+                var cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", Gift.Id);
+                cmd.Parameters.AddWithValue("@IsOpened", true);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+                connection.Close();
+                return Gift;
+            }
+        }
+
         public void UpdateModelService(FormCollection collection)
         {
             var gifts = new Gift

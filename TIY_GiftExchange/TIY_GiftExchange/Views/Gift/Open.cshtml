@@ -1,0 +1,52 @@
+﻿@model TIY_GiftExchange.Models.Gift
+
+@{
+    ViewBag.Title = "Open";
+}
+
+<h2>Open</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <div>
+            <h4 class="table">
+                @Html.DisplayFor(model => model.GiftHint, new { htmlAttributes = new { @class = "form-control" } })
+            </h4>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ColorWrappingPaper, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DisplayFor(model => model.ColorWrappingPaper, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div>
+            <div>dimensions</div>
+            <div>
+                @Model.Height x @Model.Width x @Model.Depth
+            </div>
+            <div>
+                Weight
+            </div>
+            <div>
+                @Model.Weight
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Open?" class="btn btn-default" />
+            </div>
+            <div>
+                @Html.ActionLink("Nevermind", "Index", null, new { @class = "btn btn-default" });
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
